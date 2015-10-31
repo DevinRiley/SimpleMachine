@@ -1,3 +1,4 @@
+// TODO: memory should be loaded with program contents (strip out comments and blank lines first)
 var SimpleMachine = {
   accumulator: 0,
   addressRegister: 0,
@@ -7,10 +8,12 @@ var SimpleMachine = {
   programCounter: 0,
   counter: 0,
   memory: [],
-
+  decodedInstruction: {
+    opcode: null,
+    operand: null,
+  },
   OPCODE_MASK:  0b1111000000000000,
   OPERAND_MASK: 0b0000001111111111,
-
 
   resetRegisters: function() {
     this.accumulator =  0;
@@ -22,12 +25,41 @@ var SimpleMachine = {
     this.counter = 0;
   },
 
-  execute: function(instructionAsString) {
-    var instruction, functionToExecute;
+  fetch: function() {
+    this.instructionRegister = this.memory[this.programCounter];
+    return this;
+  },
 
-    instruction = this._parseInstruction(instructionAsString);
-    functionToExecute = this._opcodeToFunction(instruction.opcode)
-    functionToExecute.apply(this, [instruction.operand]);
+  decode: function() {
+    this.decodedInstruction = this._decodeInstruction(this.instructionRegister);
+    return this;
+  },
+
+  execute: function() {
+    var instructionFunction;
+
+    instructionFunction = this._opcodeToFunction(this.decodedInstruction.opcode)
+    instructionFunction.apply(this, [this.decodedInstruction.operand]);
+    return this;
+  },
+
+  run: function() {
+    while (this.programCounter < this.memory.length) {
+      try {
+        this.fetch();
+        this.programCounter += 1;
+        this.decode();
+        this.execute();
+      }
+      catch (e) {
+        if (e == "Halt") { break };
+        throw(e);
+      }
+    }
+  },
+
+  halt: function() {
+    throw "Halt";
   },
 
   add: function() {
@@ -103,7 +135,7 @@ var SimpleMachine = {
     return "0x" + hex
   },
 
-  _parseInstruction: function(instructionAsString) {
+  _decodeInstruction: function(instructionAsString) {
     instruction = parseInt(instructionAsString);
     if (instruction == NaN) throw "Invalid instruction (must be hex string e.g. 0x8001)";
     return {
@@ -135,6 +167,3 @@ var SimpleMachine = {
     return opcodeMap[opcode];
   },
 };
-// memory should be loaded with program contents (strip out comments and blank lines first)
-// there should be something resembling the fetch/decode/execute cycle
-// should have datapaths implicit in how methods work
