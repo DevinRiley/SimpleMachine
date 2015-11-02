@@ -281,6 +281,19 @@ describe("SimpleMachine", function() {
       expect(SimpleMachine.counter).toBe(-1);
       expect(SimpleMachine.programCounter).toBe(2);
     });
+
+    it("correctly runs a simple program", function() {
+      SimpleMachine.resetRegisters();
+      SimpleMachine.memory = [
+        "0x1003", // (address 0) load word to copy from address 3
+        "0x2004", // (address 1) store it in new location (address 4)
+        "0x0000", // (address 2) halt
+        "0x4040", // (address 3) the word to copy
+        "0x0000"] // (address 4) the location to copy to
+
+      SimpleMachine.run();
+      expect(SimpleMachine.memory[3]).toBe("0x4040");
+    });
   });
 
 });
