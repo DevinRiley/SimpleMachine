@@ -1,4 +1,3 @@
-// TODO: memory should be loaded with program contents (strip out comments and blank lines first)
 var SimpleMachine = {
   accumulator: 0,
   addressRegister: 0,
@@ -12,8 +11,6 @@ var SimpleMachine = {
     opcode: null,
     operand: null,
   },
-  OPCODE_MASK:  0b1111000000000000,
-  OPERAND_MASK: 0b0000001111111111,
 
   resetRegisters: function() {
     this.accumulator =  0;
@@ -43,14 +40,17 @@ var SimpleMachine = {
     return this;
   },
 
+  cycle: function() {
+    this.fetch();
+    this.programCounter += 1;
+    this.decode();
+    this.execute();
+    return true;
+  },
+
   run: function() {
     while (this.programCounter < this.memory.length) {
-      try {
-        this.fetch();
-        this.programCounter += 1;
-        this.decode();
-        this.execute();
-      }
+      try { this.cycle(); }
       catch (e) {
         if (e == "Halt") { break };
         throw(e);
@@ -97,6 +97,11 @@ var SimpleMachine = {
     if (this.counter == 0) { this.programCounter = address };
   },
 
+  jmp: function(address) {
+    if (address > this.memory.length) { throw "illegal jump" };
+    this.programCounter = address;
+  },
+
   jlt: function(address) {
     if (this.counter < 0) { this.programCounter = address };
   },
@@ -136,11 +141,13 @@ var SimpleMachine = {
   },
 
   _decodeInstruction: function(instructionAsString) {
+    var OPCODE_MASK =  0b1111000000000000;
+    var OPERAND_MASK = 0b0000001111111111;
     instruction = parseInt(instructionAsString);
     if (instruction == NaN) throw "Invalid instruction (must be hex string e.g. 0x8001)";
     return {
-      opcode:  (instruction & this.OPCODE_MASK) >>> 12,
-      operand: instruction & this.OPERAND_MASK,
+      opcode:  (instruction & OPCODE_MASK) >>> 12,
+      operand: instruction & OPERAND_MASK,
     }
   },
 

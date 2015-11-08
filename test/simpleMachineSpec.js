@@ -3,21 +3,7 @@ describe("SimpleMachine", function() {
         expect(SimpleMachine).toEqual(jasmine.anything());
     });
 
-    it("should have the PC, accumulator, counter and all the registers initiliazed to zero", function() {
-        expect(SimpleMachine.accumulator).toBe(0);
-        expect(SimpleMachine.addressRegister).toBe(0);
-        expect(SimpleMachine.memoryAddressRegister).toBe(0);
-        expect(SimpleMachine.memoryBufferRegister).toBe(0);
-        expect(SimpleMachine.instructionRegister).toBe(0);
-        expect(SimpleMachine.programCounter).toBe(0);
-        expect(SimpleMachine.counter).toBe(0);
-    });
-
-    it("initializes memory to an empty array", function() {
-      expect(SimpleMachine.memory).toEqual([]);
-    });
-
-    describe(".reset()", function() {
+    describe(".resetRegisters()", function() {
       it("sets all values to 0", function() {
         SimpleMachine.accumulator = 1;
         SimpleMachine.addressRegister = 1;
@@ -52,7 +38,7 @@ describe("SimpleMachine", function() {
         SimpleMachine.resetRegisters();
         SimpleMachine.memory = ["0x1001", "0x0007"];
 
-        SimpleMachine.fetch().decode().execute();
+        SimpleMachine.cycle();
         expect(SimpleMachine.accumulator).toBe(7);
       });
     });
@@ -63,7 +49,7 @@ describe("SimpleMachine", function() {
         SimpleMachine.memoryBufferRegister = 64;
 
         SimpleMachine.memory = ["0x2000"];
-        SimpleMachine.fetch().decode().execute();
+        SimpleMachine.cycle();
         expect(SimpleMachine.memory[0]).toBe('0x0040');
       });
     });
@@ -74,7 +60,7 @@ describe("SimpleMachine", function() {
         SimpleMachine.memoryBufferRegister = 1;
 
         SimpleMachine.memory = ["0x8000"];
-        SimpleMachine.fetch().decode().execute()
+        SimpleMachine.cycle();
         expect(SimpleMachine.accumulator).toBe(1);
       });
     });
@@ -85,7 +71,7 @@ describe("SimpleMachine", function() {
 
         SimpleMachine.memoryBufferRegister = 1;
         SimpleMachine.memory = ["0x9000"];
-        SimpleMachine.fetch().decode().execute()
+        SimpleMachine.cycle();
         expect(SimpleMachine.accumulator).toBe(-1);
       });
     });
@@ -97,7 +83,7 @@ describe("SimpleMachine", function() {
         SimpleMachine.accumulator = 1;
 
         SimpleMachine.memory = ["0x3000"];
-        SimpleMachine.fetch().decode().execute()
+        SimpleMachine.cycle();
         expect(SimpleMachine.accumulator).toBe(2);
       });
     });
@@ -108,7 +94,7 @@ describe("SimpleMachine", function() {
         SimpleMachine.accumulator = 7;
 
         SimpleMachine.memory = ["0x4000"];
-        SimpleMachine.fetch().decode().execute()
+        SimpleMachine.cycle();
         expect(SimpleMachine.counter).toBe(7);
       });
     });
@@ -119,7 +105,7 @@ describe("SimpleMachine", function() {
         SimpleMachine.counter = 7;
 
         SimpleMachine.memory = ["0xA000"];
-        SimpleMachine.fetch().decode().execute()
+        SimpleMachine.cycle();
         expect(SimpleMachine.counter).toBe(6);
       });
     });
@@ -130,7 +116,7 @@ describe("SimpleMachine", function() {
         SimpleMachine.counter = 0;
 
         SimpleMachine.memory = ["0x500A"];
-        SimpleMachine.fetch().decode().execute()
+        SimpleMachine.cycle();
         expect(SimpleMachine.programCounter).toBe(10);
       });
 
@@ -139,8 +125,8 @@ describe("SimpleMachine", function() {
         SimpleMachine.counter = 1;
 
         SimpleMachine.memory = ["0x500A"];
-        SimpleMachine.fetch().decode().execute()
-        expect(SimpleMachine.programCounter).toBe(0);
+        SimpleMachine.cycle();
+        expect(SimpleMachine.programCounter).toBe(1);
       });
     });
 
@@ -150,7 +136,7 @@ describe("SimpleMachine", function() {
         SimpleMachine.counter = -1;
 
         SimpleMachine.memory = ["0x600A"];
-        SimpleMachine.fetch().decode().execute()
+        SimpleMachine.cycle();
         expect(SimpleMachine.programCounter).toBe(10);
       });
 
@@ -159,8 +145,8 @@ describe("SimpleMachine", function() {
         SimpleMachine.counter = 0;
 
         SimpleMachine.memory = ["0x600A"];
-        SimpleMachine.fetch().decode().execute()
-        expect(SimpleMachine.programCounter).toBe(0);
+        SimpleMachine.cycle();
+        expect(SimpleMachine.programCounter).toBe(1);
       });
     });
 
@@ -169,9 +155,9 @@ describe("SimpleMachine", function() {
         SimpleMachine.resetRegisters();
         SimpleMachine.counter = -1;
 
-        SimpleMachine.memory = ["0x600A"];
-        SimpleMachine.fetch().decode().execute()
-        expect(SimpleMachine.programCounter).toBe(10);
+        SimpleMachine.memory = ["0x7001","0x0000"];
+        SimpleMachine.cycle();
+        expect(SimpleMachine.programCounter).toBe(1);
       });
     });
 
@@ -180,7 +166,7 @@ describe("SimpleMachine", function() {
         SimpleMachine.resetRegisters();
 
         SimpleMachine.memory = ["0xBFFF"];
-        SimpleMachine.fetch().decode().execute()
+        SimpleMachine.cycle();
         expect(SimpleMachine.accumulator).toBe(1023);
       });
     });
@@ -191,7 +177,7 @@ describe("SimpleMachine", function() {
         SimpleMachine.memory = ["0xC000", "0x000A"];
         SimpleMachine.addressRegister = 1;
 
-        SimpleMachine.fetch().decode().execute();
+        SimpleMachine.cycle();
         expect(SimpleMachine.accumulator).toBe(10);
       });
     });
@@ -203,7 +189,7 @@ describe("SimpleMachine", function() {
         SimpleMachine.addressRegister = 0;
         SimpleMachine.memory = ["0xD000", "0x000A"];
 
-        SimpleMachine.fetch().decode().execute();
+        SimpleMachine.cycle();
         expect(SimpleMachine.memory[0]).toBe("0x0011");
       });
     });
@@ -214,7 +200,7 @@ describe("SimpleMachine", function() {
         SimpleMachine.accumulator = 17;
 
         SimpleMachine.memory = ["0xE000"];
-        SimpleMachine.fetch().decode().execute();
+        SimpleMachine.cycle();
         expect(SimpleMachine.addressRegister).toBe(17);
       });
     });
@@ -293,6 +279,17 @@ describe("SimpleMachine", function() {
 
       SimpleMachine.run();
       expect(SimpleMachine.memory[3]).toBe("0x4040");
+    });
+  });
+
+  describe(".cycle()", function() {
+    it("runs a single fetch/decode/execute cycle and updates program counter", function() {
+        SimpleMachine.resetRegisters();
+        SimpleMachine.memory = ["0x1000"];
+
+        SimpleMachine.cycle();
+        expect(SimpleMachine.accumulator).toBe(4096);
+        expect(SimpleMachine.programCounter).toBe(1);
     });
   });
 
