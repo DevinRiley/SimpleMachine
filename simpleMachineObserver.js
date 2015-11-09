@@ -1,9 +1,7 @@
 window.eventEmitter = window.eventEmitter || new EventEmitter();
 
 var SimpleMachineObserver = function(simpleMachine) {
-  if (simpleMachine == null) { 
-    throw "must provide a simpleMachine"
-  };
+  if (simpleMachine == null) { throw "must provide a simpleMachine" };
 
   this.registerList = ["accumulator", "addressRegister", "memoryAddressRegister", "memoryBufferRegister", "instructionRegister", "programCounter", "counter",]
   this.simpleMachine = simpleMachine;
@@ -30,7 +28,7 @@ var SimpleMachineObserver = function(simpleMachine) {
   this.runSimpleMachine = function() {
     this.intervalId = setInterval(
         this.observeCycleWithExceptionHandling.bind(this),
-        300);
+        500);
   };
 
   this.observeCycleWithExceptionHandling = function(intervalId) {

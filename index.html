@@ -3,36 +3,48 @@
     p { 
       width: 100px;
       font-family: monospace;
-      font-size: 20px;
+      font-size: 25px;
+      text-align: center;
+      border: 1px solid gray;
+      margin: 0;
     }
+    h3 { 
+      font-family: monospace;
+      text-align: center;
+      border: 1px;
+      margin: 0;
+      font-size: 20px;
+
+    }
+    div { float: left; }
   </style>
   <body id="root">
     <div id="accumulator">
-      <h3>Accumulator: </h3>
+      <h3>ACCUM </h3>
       <p class="value">0</p>
     </div>
     <div id="addressRegister">
-      <h3>addressRegister: </h3>
+      <h3>AREG </h3>
       <p class="value">0</p>
     </div>
     <div id="memoryAddressRegister">
-      <h3>memoryAddressRegister: </h3>
+      <h3>MAR </h3>
       <p class="value">0</p>
     </div>
     <div id="memoryBufferRegister">
-      <h3>memoryBufferRegister: </h3>
+      <h3>MBR </h3>
       <p class="value">0</p>
     </div>
     <div id="instructionRegister">
-      <h3>instructionRegister: </h3>
+      <h3>IR </h3>
       <p class="value">0</p>
     </div>
     <div id="programCounter">
-      <h3>programCounter: </h3>
+      <h3>PC </h3>
       <p class="value">0</p>
     </div>
     <div id="counter">
-      <h3>counter: </h3>
+      <h3>CTR </h3>
       <p class="value">0</p>
     </div>
   </body>
@@ -41,9 +53,9 @@
   <script type="text/javascript" src="simpleMachineObserver.js"></script>
   <script type="text/javascript" src="simpleMachineView.js"></script>
   <script>
-    var insanelyLongProgram = ["0xb000","0x2021","0xb001","0x9020","0x4000","0x601B","0xb025","0x3000","0xe000","0xc000","0x2022","0xB000","0x3000","0x2023","0x1022","0x4000","0x6012","0x7015","0xB000","0x3000","0x9024","0x8021","0x2021","0x1023","0x4000","0xa000","0x7005","0x0","0x0000","0x0000","0x0000","0x0000","0x000A","0x0000","0x0000","0x0000","0x0000","0xFFFE","0xFFFE","0xFFFE","0x0001","0x0001","0x0001","0x0001","0x0001","0x0001","0x0001",];
-    SimpleMachine.memory = insanelyLongProgram;
-    //SimpleMachine.memory = ["0x1001", "0xA000"];
+    //var insanelyLongProgram = ["0xb000","0x2021","0xb001","0x9020","0x4000","0x601B","0xb025","0x3000","0xe000","0xc000","0x2022","0xB000","0x3000","0x2023","0x1022","0x4000","0x6012","0x7015","0xB000","0x3000","0x9024","0x8021","0x2021","0x1023","0x4000","0xa000","0x7005","0x0","0x0000","0x0000","0x0000","0x0000","0x000A","0x0000","0x0000","0x0000","0x0000","0xFFFE","0xFFFE","0xFFFE","0x0001","0x0001","0x0001","0x0001","0x0001","0x0001","0x0001",];
+    var starterProgram = ["0x4000", "0xB001", "0x3000", "0x7000"];
+    SimpleMachine.memory = starterProgram;
     var view = new SimpleMachineView();
     view.initListeners();
     var observer = new SimpleMachineObserver(SimpleMachine);

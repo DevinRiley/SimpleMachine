@@ -4,17 +4,15 @@ window.eventEmitter = window.eventEmitter || new EventEmitter();
   var SimpleMachineView = function() {}
   var proto = SimpleMachineView.prototype;
 
+  // regex of joy: 0x[^\s#]+
   proto.rootEl = document.getElementById('root');
   proto.events = window.eventEmitter;
-  proto.templates = {
-    accumulator: '<h1>Accumulator</h1><div class="value"</div>',
-  }
 
   proto.fadeElement = function(el) {
-   el.style.backgroundColor = 'rgb(0,205,0)';
+   el.style.backgroundColor = 'rgb(0,220,0)';
    var timeoutId = window.setTimeout(function() { 
      el.style.transition = 'background 0.5s ease-in'; 
-     el.style.backgroundColor = 'rgb(255,255,255)'
+     el.style.backgroundColor = 'white'
      window.clearTimeout(timeoutId);
    }, 50);
    el.style.transition = ''; 

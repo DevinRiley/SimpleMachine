@@ -45,7 +45,6 @@ var SimpleMachine = {
     this.programCounter += 1;
     this.decode();
     this.execute();
-    return true;
   },
 
   run: function() {
