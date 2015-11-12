@@ -1,6 +1,10 @@
 <html>
   <style>
-    p { 
+    textarea {
+      float: left;
+    }
+
+    p {
       width: 100px;
       font-family: monospace;
       font-size: 25px;
@@ -8,7 +12,8 @@
       border: 1px solid gray;
       margin: 0;
     }
-    h3 { 
+
+    h3 {
       font-family: monospace;
       text-align: center;
       border: 1px;
@@ -16,36 +21,78 @@
       font-size: 20px;
 
     }
-    div { float: left; }
+
+    textarea {
+      clear: both;
+      display: block;
+      font-family: monospace;
+      font-size: 18px;
+      margin-top: 20px;
+    }
+
+    button {
+      display: block;
+    }
+
+    .register {
+      float: left;
+      margin-bottom: 30px;
+    }
+
+    #memory {
+      float: left;
+      margin-left: 50px;
+    }
+
+    #memory,tr {
+      border: 1px solid gray
+    }
+
+    #memory,td {
+      width: 100px;
+      font-family: monospace;
+      font-size: 25px;
+      text-align: center;
+    }
+
   </style>
   <body id="root">
-    <div id="accumulator">
+    <div class="register" id="accumulator">
       <h3>ACCUM </h3>
       <p class="value">0</p>
     </div>
-    <div id="addressRegister">
+    <div class="register" id="addressRegister">
       <h3>AREG </h3>
       <p class="value">0</p>
     </div>
-    <div id="memoryAddressRegister">
+    <div class="register" id="memoryAddressRegister">
       <h3>MAR </h3>
       <p class="value">0</p>
     </div>
-    <div id="memoryBufferRegister">
+    <div class="register" id="memoryBufferRegister">
       <h3>MBR </h3>
       <p class="value">0</p>
     </div>
-    <div id="instructionRegister">
+    <div class="register" id="instructionRegister">
       <h3>IR </h3>
       <p class="value">0</p>
     </div>
-    <div id="programCounter">
+    <div class="register" id="programCounter">
       <h3>PC </h3>
       <p class="value">0</p>
     </div>
-    <div id="counter">
+    <div class="register" id="counter">
       <h3>CTR </h3>
       <p class="value">0</p>
+    </div>
+
+    <div class="code">
+      <textarea name="textarea" rows="30" cols="40"></textarea>
+      <button id="load">Load Program</button>
+      <button id="play">Play</button>
+      <button id="stop">Stop</button>
+    </div>
+    <table id="memory">
     </div>
   </body>
   <script type="text/javascript" src="EventEmitter.js"></script>
@@ -53,11 +100,12 @@
   <script type="text/javascript" src="simpleMachineObserver.js"></script>
   <script type="text/javascript" src="simpleMachineView.js"></script>
   <script>
-    //var insanelyLongProgram = ["0xb000","0x2021","0xb001","0x9020","0x4000","0x601B","0xb025","0x3000","0xe000","0xc000","0x2022","0xB000","0x3000","0x2023","0x1022","0x4000","0x6012","0x7015","0xB000","0x3000","0x9024","0x8021","0x2021","0x1023","0x4000","0xa000","0x7005","0x0","0x0000","0x0000","0x0000","0x0000","0x000A","0x0000","0x0000","0x0000","0x0000","0xFFFE","0xFFFE","0xFFFE","0x0001","0x0001","0x0001","0x0001","0x0001","0x0001","0x0001",];
+    var insanelyLongProgram = ["0xb000","0x2021","0xb001","0x9020","0x4000","0x601B","0xb025","0x3000","0xe000","0xc000","0x2022","0xB000","0x3000","0x2023","0x1022","0x4000","0x6012","0x7015","0xB000","0x3000","0x9024","0x8021","0x2021","0x1023","0x4000","0xa000","0x7005","0x0","0x0000","0x0000","0x0000","0x0000","0x000A","0x0000","0x0000","0x0000","0x0000","0xFFFE","0xFFFE","0xFFFE","0x0001","0x0001","0x0001","0x0001","0x0001","0x0001","0x0001",];
     var starterProgram = ["0x4000", "0xB001", "0x3000", "0x7000"];
     SimpleMachine.memory = starterProgram;
+    //SimpleMachine.memory = insanelyLongProgram;
     var view = new SimpleMachineView();
-    view.initListeners();
+    view.initialize();
     var observer = new SimpleMachineObserver(SimpleMachine);
     observer.runSimpleMachine();
   </script>

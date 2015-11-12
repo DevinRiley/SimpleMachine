@@ -8,20 +8,7 @@ describe("SimpleMachineObserver", function() {
     expect(function() { new SimpleMachineObserver() }).toThrow();
   });
 
-  describe(".observeCycle()", function() {
-    it("emits an event when the program counter changes", function() {
-      SimpleMachine.resetRegisters();
-      SimpleMachine.memory = ["0x1000"];
-
-      var observer = new SimpleMachineObserver(SimpleMachine);
-      var ee = observer.events
-      spyOn(ee, 'emitEvent');
-      observer.observeCycle();
-      expect(ee.emitEvent).toHaveBeenCalledWith('accumulator', [4096]);
-    });
-  });
-
-  describe(".observeCycleWithExceptionHandling", function() {
+  describe(".observeStageWithExceptionHandling", function() {
     it("emits a halt event when the program halts", function() {
       SimpleMachine.resetRegisters();
       SimpleMachine.memory = ["0x0000"];
@@ -29,7 +16,10 @@ describe("SimpleMachineObserver", function() {
       var observer = new SimpleMachineObserver(SimpleMachine);
       var ee = observer.events
       spyOn(ee, 'emitEvent');
-      observer.observeCycleWithExceptionHandling();
+      observer.observeStageWithExceptionHandling();
+      observer.observeStageWithExceptionHandling();
+      observer.observeStageWithExceptionHandling();
+      observer.observeStageWithExceptionHandling();
       expect(ee.emitEvent).toHaveBeenCalledWith('halt');
     });
   });

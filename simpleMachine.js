@@ -7,29 +7,34 @@ var SimpleMachine = {
   programCounter: 0,
   counter: 0,
   memory: [],
-  decodedInstruction: {
-    opcode: null,
-    operand: null,
-  },
+  nextStage: null,
+  decodedInstruction: { opcode: null, operand: null },
 
   resetRegisters: function() {
     this.accumulator =  0;
     this.addressRegister = 0;
-    this.memoryAddressReigster = 0;
+    this.memoryAddressRegister = 0;
     this.memoryBufferRegister = 0;
     this.instructionRegister = 0;
     this.programCounter = 0;
     this.counter = 0;
   },
 
+  reset: function() {
+    this.resetRegisters();
+    this.decodedInstruction = { opcode: null, operand: null };
+    this.nextStage = null;
+  },
+
   fetch: function() {
     this.instructionRegister = this.memory[this.programCounter];
-    return this;
+    this.programCounter += 1;
+    this.nextStage = this.decode;
   },
 
   decode: function() {
     this.decodedInstruction = this._decodeInstruction(this.instructionRegister);
-    return this;
+    this.nextStage = this.execute;
   },
 
   execute: function() {
@@ -37,12 +42,11 @@ var SimpleMachine = {
 
     instructionFunction = this._opcodeToFunction(this.decodedInstruction.opcode)
     instructionFunction.apply(this, [this.decodedInstruction.operand]);
-    return this;
+    this.nextStage = this.fetch;
   },
 
   cycle: function() {
     this.fetch();
-    this.programCounter += 1;
     this.decode();
     this.execute();
   },
@@ -142,6 +146,7 @@ var SimpleMachine = {
   _decodeInstruction: function(instructionAsString) {
     var OPCODE_MASK =  0b1111000000000000;
     var OPERAND_MASK = 0b0000001111111111;
+
     instruction = parseInt(instructionAsString);
     if (instruction == NaN) throw "Invalid instruction (must be hex string e.g. 0x8001)";
     return {

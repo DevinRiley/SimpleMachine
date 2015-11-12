@@ -7,6 +7,7 @@ describe("SimpleMachine", function() {
       it("sets all values to 0", function() {
         SimpleMachine.accumulator = 1;
         SimpleMachine.addressRegister = 1;
+        SimpleMachine.memoryAddressRegister = 1;
         SimpleMachine.memoryBufferRegister = 1;
         SimpleMachine.instructionRegister = 1;
         SimpleMachine.programCounter = 1;
@@ -210,7 +211,8 @@ describe("SimpleMachine", function() {
         SimpleMachine.resetRegisters();
 
         SimpleMachine.memory = ["0x0000"];
-        SimpleMachine.fetch().decode();
+        SimpleMachine.fetch()
+        SimpleMachine.decode();
         expect(function() { SimpleMachine.execute(); }).toThrow("Halt");
       });
     });
@@ -223,6 +225,16 @@ describe("SimpleMachine", function() {
       SimpleMachine.fetch();
       expect(SimpleMachine.instructionRegister).toBe("0x1000");
     });
+
+    it("sets the nextStage to decode", function() {
+      SimpleMachine.nextStage = null;
+      SimpleMachine.resetRegisters();
+      SimpleMachine.memory = ["0x1000"];
+
+      SimpleMachine.fetch();
+
+      expect(SimpleMachine.nextStage).toBe(SimpleMachine.decode);
+    });
   });
 
   describe(".decode()", function() {
@@ -233,6 +245,15 @@ describe("SimpleMachine", function() {
       SimpleMachine.decode();
       expect(SimpleMachine.decodedInstruction.opcode).toBe(1);
       expect(SimpleMachine.decodedInstruction.operand).toBe(0);
+    });
+
+    it("sets the nextStage to execute", function() {
+      SimpleMachine.nextStage = null;
+      SimpleMachine.resetRegisters();
+
+      SimpleMachine.decode();
+
+      expect(SimpleMachine.nextStage).toBe(SimpleMachine.execute);
     });
   });
 
@@ -247,6 +268,15 @@ describe("SimpleMachine", function() {
       
       SimpleMachine.execute();
       expect(SimpleMachine.load).toHaveBeenCalledWith(7);
+    });
+
+    it("sets the nextStage to fetch", function() {
+      SimpleMachine.nextStage = null;
+      SimpleMachine.resetRegisters();
+
+      SimpleMachine.execute();
+
+      expect(SimpleMachine.nextStage).toBe(SimpleMachine.fetch);
     });
   });
 
@@ -290,6 +320,22 @@ describe("SimpleMachine", function() {
         SimpleMachine.cycle();
         expect(SimpleMachine.accumulator).toBe(4096);
         expect(SimpleMachine.programCounter).toBe(1);
+    });
+  });
+
+  describe(".reset()", function() {
+    it("resets registers, decodedInstruction, and nextStage attributes", function() {
+      SimpleMachine.resetRegisters();
+      SimpleMachine.memory = [ "0xB001"]
+      SimpleMachine.cycle();
+      expect(SimpleMachine.programCounter).toBe(1);
+      expect(SimpleMachine.decodedInstruction.opcode).not.toBe(null);
+      expect(SimpleMachine.nextStage).not.toBe(null);
+
+      SimpleMachine.reset();
+      expect(SimpleMachine.programCounter).toBe(0);
+      expect(SimpleMachine.decodedInstruction.opcode).toBe(null);
+      expect(SimpleMachine.nextStage).toBe(null);
     });
   });
 
