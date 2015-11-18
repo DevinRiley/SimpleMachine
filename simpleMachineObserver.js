@@ -3,7 +3,7 @@ window.eventEmitter = window.eventEmitter || new EventEmitter();
 var SimpleMachineObserver = function(simpleMachine) {
   if (simpleMachine == null) { throw "must provide a simpleMachine" };
 
-  this.registerList = ["accumulator", "addressRegister", "memoryAddressRegister", "memoryBufferRegister", "instructionRegister", "programCounter", "counter", "memory"]
+  this.registerList = ["accumulator", "addressRegister", "memoryAddressRegister", "memoryBufferRegister", "instructionRegister", "programCounter", "counter"]
   this.simpleMachine = simpleMachine;
   this.events  = window.eventEmitter;
   this.cloneObject = function(object) { return JSON.parse(JSON.stringify(object)) };
@@ -23,27 +23,19 @@ var SimpleMachineObserver = function(simpleMachine) {
     this.emitEventsForRegisters(this.registerList);
   }.bind(this));
 
-  this.events.addListener('loadMemory', function(instructions) {
-    SimpleMachine.memory = instructions;
-    this.emitEventsForRegisters(['memory']);
+  this.events.addListener('cycle', function() {
+    this.observeCycleWithExceptionHandling();
   }.bind(this));
 
-  this.getUpdatedRegisters = function(first, second) {
+  this.events.addListener('loadMemory', function(instructions) {
+    SimpleMachine.memory = instructions;
+  }.bind(this));
+
+  this.getUpdatedRegisters = function(oldState, newState) {
     var diff = [];
 
     this.registerList.forEach(function(key) {
-      if (Array.isArray(first[key])) {
-        first[key].forEach(function(val, index) {
-          try {
-            var newVal = second[key][index];
-            if (val != newVal) { diff.push(key) }
-          } catch(e) {
-            diff.push(key);
-          }
-        });
-      } else if (first[key] != second[key]) { 
-        diff.push(key);
-      }
+      if (oldState[key] != newState[key]) { diff.push(key); }
     });
 
     return diff;
@@ -56,15 +48,28 @@ var SimpleMachineObserver = function(simpleMachine) {
     });
   };
 
-  this.runSimpleMachine = function() {
-    clearInterval(this.intervalId);
-    this.intervalId = setInterval(this.observeStageWithExceptionHandling.bind(this), 500);
+  this.emitEventsForMemory = function(oldMemory, newMemory) {
+    var newVal;
+    var observer = this;
+
+    oldMemory.forEach(function(oldVal, index) {
+      newVal = newMemory[index];
+      if (newVal !== oldVal) {
+        observer.events.emitEvent('memoryUpdate', [index, newVal]);
+      }
+    });
+    
   };
 
-  this.observeStageWithExceptionHandling = function(intervalId) {
+  this.runSimpleMachine = function() {
+    clearInterval(this.intervalId);
+    this.intervalId = setInterval(this.observeCycleWithExceptionHandling.bind(this), 300);
+  };
+
+  this.observeCycleWithExceptionHandling = function(intervalId) {
     var cpu = simpleMachine;
     try {
-      this.observeNextStage();
+      this.observeNextCycle();
       if (cpu.programCounter > cpu.memory.length) {
         clearInterval(this.intervalId);
       }
@@ -76,13 +81,12 @@ var SimpleMachineObserver = function(simpleMachine) {
     }
   }
 
-  this.observeNextStage = function() {
+  this.observeNextCycle = function() {
     var oldState, updatedRegisters;
     oldState = this.cloneObject(simpleMachine);
-    //fn = simpleMachine.nextStage || simpleMachine.fetch
-    //fn.call(simpleMachine);
     simpleMachine.cycle();
     updatedRegisters = this.getUpdatedRegisters(oldState, simpleMachine);
     this.emitEventsForRegisters(updatedRegisters);
+    this.emitEventsForMemory(oldState.memory, simpleMachine.memory);
   }
 }

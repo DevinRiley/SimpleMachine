@@ -7,7 +7,6 @@ var SimpleMachine = {
   programCounter: 0,
   counter: 0,
   memory: [],
-  nextStage: null,
   decodedInstruction: { opcode: null, operand: null },
 
   resetRegisters: function() {
@@ -23,18 +22,15 @@ var SimpleMachine = {
   reset: function() {
     this.resetRegisters();
     this.decodedInstruction = { opcode: null, operand: null };
-    this.nextStage = null;
   },
 
   fetch: function() {
     this.instructionRegister = this.memory[this.programCounter];
     this.programCounter += 1;
-    this.nextStage = this.decode;
   },
 
   decode: function() {
     this.decodedInstruction = this._decodeInstruction(this.instructionRegister);
-    this.nextStage = this.execute;
   },
 
   execute: function() {
@@ -42,7 +38,6 @@ var SimpleMachine = {
 
     instructionFunction = this._opcodeToFunction(this.decodedInstruction.opcode)
     instructionFunction.apply(this, [this.decodedInstruction.operand]);
-    this.nextStage = this.fetch;
   },
 
   cycle: function() {
@@ -92,8 +87,9 @@ var SimpleMachine = {
   },
 
   store: function(address) {
+    this.memoryBufferRegister = this.accumulator;
     this.memoryAddressRegister = address;
-    this._put()
+    this._put();
   },
 
   jeq: function(address) {

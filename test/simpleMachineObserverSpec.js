@@ -1,14 +1,9 @@
-// is given a simple machine object that has memory already loaded:
-// makes the object cycle and emits events on:
-//  - memory writes
-//  - memory reads?
-
 describe("SimpleMachineObserver", function() {
   it("requires a simpleMachine is provided as an argument on instantiation", function() {
     expect(function() { new SimpleMachineObserver() }).toThrow();
   });
 
-  describe(".observeStageWithExceptionHandling", function() {
+  describe(".observeCycleWithExceptionHandling", function() {
     it("emits a halt event when the program halts", function() {
       SimpleMachine.resetRegisters();
       SimpleMachine.memory = ["0x0000"];
@@ -16,10 +11,10 @@ describe("SimpleMachineObserver", function() {
       var observer = new SimpleMachineObserver(SimpleMachine);
       var ee = observer.events
       spyOn(ee, 'emitEvent');
-      observer.observeStageWithExceptionHandling();
-      observer.observeStageWithExceptionHandling();
-      observer.observeStageWithExceptionHandling();
-      observer.observeStageWithExceptionHandling();
+      observer.observeCycleWithExceptionHandling();
+      observer.observeCycleWithExceptionHandling();
+      observer.observeCycleWithExceptionHandling();
+      observer.observeCycleWithExceptionHandling();
       expect(ee.emitEvent).toHaveBeenCalledWith('halt');
     });
   });

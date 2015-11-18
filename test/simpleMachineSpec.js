@@ -47,7 +47,7 @@ describe("SimpleMachine", function() {
     describe("STORE instruction", function() {
       it("stores accumulator to memory", function() {
         SimpleMachine.resetRegisters();
-        SimpleMachine.memoryBufferRegister = 64;
+        SimpleMachine.accumulator = 64;
 
         SimpleMachine.memory = ["0x2000"];
         SimpleMachine.cycle();
@@ -225,16 +225,6 @@ describe("SimpleMachine", function() {
       SimpleMachine.fetch();
       expect(SimpleMachine.instructionRegister).toBe("0x1000");
     });
-
-    it("sets the nextStage to decode", function() {
-      SimpleMachine.nextStage = null;
-      SimpleMachine.resetRegisters();
-      SimpleMachine.memory = ["0x1000"];
-
-      SimpleMachine.fetch();
-
-      expect(SimpleMachine.nextStage).toBe(SimpleMachine.decode);
-    });
   });
 
   describe(".decode()", function() {
@@ -245,15 +235,6 @@ describe("SimpleMachine", function() {
       SimpleMachine.decode();
       expect(SimpleMachine.decodedInstruction.opcode).toBe(1);
       expect(SimpleMachine.decodedInstruction.operand).toBe(0);
-    });
-
-    it("sets the nextStage to execute", function() {
-      SimpleMachine.nextStage = null;
-      SimpleMachine.resetRegisters();
-
-      SimpleMachine.decode();
-
-      expect(SimpleMachine.nextStage).toBe(SimpleMachine.execute);
     });
   });
 
@@ -268,15 +249,6 @@ describe("SimpleMachine", function() {
       
       SimpleMachine.execute();
       expect(SimpleMachine.load).toHaveBeenCalledWith(7);
-    });
-
-    it("sets the nextStage to fetch", function() {
-      SimpleMachine.nextStage = null;
-      SimpleMachine.resetRegisters();
-
-      SimpleMachine.execute();
-
-      expect(SimpleMachine.nextStage).toBe(SimpleMachine.fetch);
     });
   });
 
@@ -302,13 +274,14 @@ describe("SimpleMachine", function() {
       SimpleMachine.resetRegisters();
       SimpleMachine.memory = [
         "0x1003", // (address 0) load word to copy from address 3
-        "0x2004", // (address 1) store it in new location (address 4)
+        "0x2005", // (address 1) store it in new location (address 4)
         "0x0000", // (address 2) halt
         "0x4040", // (address 3) the word to copy
+        "0x0000", // (address 4) the location to copy to
         "0x0000"] // (address 4) the location to copy to
 
       SimpleMachine.run();
-      expect(SimpleMachine.memory[3]).toBe("0x4040");
+      expect(SimpleMachine.memory[5]).toBe("0x4040");
     });
   });
 
@@ -324,18 +297,16 @@ describe("SimpleMachine", function() {
   });
 
   describe(".reset()", function() {
-    it("resets registers, decodedInstruction, and nextStage attributes", function() {
+    it("resets registers, and decodedInstruction attributes", function() {
       SimpleMachine.resetRegisters();
       SimpleMachine.memory = [ "0xB001"]
       SimpleMachine.cycle();
       expect(SimpleMachine.programCounter).toBe(1);
       expect(SimpleMachine.decodedInstruction.opcode).not.toBe(null);
-      expect(SimpleMachine.nextStage).not.toBe(null);
 
       SimpleMachine.reset();
       expect(SimpleMachine.programCounter).toBe(0);
       expect(SimpleMachine.decodedInstruction.opcode).toBe(null);
-      expect(SimpleMachine.nextStage).toBe(null);
     });
   });
 
