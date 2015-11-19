@@ -95,6 +95,7 @@ window.eventEmitter = window.eventEmitter || new EventEmitter();
   }
 
   proto.resetSimpleMachine = function() {
+    this.events.emitEvent('stop');
     this.events.emitEvent('reset');
     this.wipeMemoryCellColors();
     this.resetButtonStates();

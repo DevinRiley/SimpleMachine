@@ -58,12 +58,11 @@ var SimpleMachineObserver = function(simpleMachine) {
         observer.events.emitEvent('memoryUpdate', [index, newVal]);
       }
     });
-    
   };
 
   this.runSimpleMachine = function() {
     clearInterval(this.intervalId);
-    this.intervalId = setInterval(this.observeCycleWithExceptionHandling.bind(this), 500);
+    this.intervalId = setInterval(this.observeCycleWithExceptionHandling.bind(this), 300);
   };
 
   this.observeCycleWithExceptionHandling = function(intervalId) {
@@ -74,8 +73,8 @@ var SimpleMachineObserver = function(simpleMachine) {
         clearInterval(this.intervalId);
       }
     } catch(e) {
-      if (e == "Halt") { 
-        this.events.emitEvent('halt'); 
+      if (e == "Halt") {
+        this.events.emitEvent('halt');
         clearInterval(this.intervalId);
       } else { throw(e); }
     }
