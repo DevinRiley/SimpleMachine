@@ -63,7 +63,7 @@ var SimpleMachineObserver = function(simpleMachine) {
 
   this.runSimpleMachine = function() {
     clearInterval(this.intervalId);
-    this.intervalId = setInterval(this.observeCycleWithExceptionHandling.bind(this), 300);
+    this.intervalId = setInterval(this.observeCycleWithExceptionHandling.bind(this), 500);
   };
 
   this.observeCycleWithExceptionHandling = function(intervalId) {
