@@ -200,7 +200,7 @@ window.eventEmitter = window.eventEmitter || new EventEmitter();
       var el, valueEl;
       el = document.getElementById(name)
       valueEl = el.querySelectorAll('.value')[0];
-      valueEl.innerText = newValue;
+      valueEl.innerHTML = newValue;
       view.fadeElement(valueEl, "lawngreen", "white");
     });
   }

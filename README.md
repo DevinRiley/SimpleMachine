@@ -1,0 +1,1 @@
+This is a browser implementation of the SimpleMachine CPU.  SimpleMachine is a simplified CPU used as a learning tool in Greg Boyd's CS270 class at CCSF.  Full specs and behavior of the CPU can be found at http://fog.ccsf.edu/~gboyd/cs270/SimpleMachine.pdf and http://fog.ccsf.edu/~gboyd/cs270/SimpleMachineDatapaths.pdf.
