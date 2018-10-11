@@ -60,12 +60,16 @@ var SimpleMachine = {
     throw "Halt";
   },
 
-  add: function() {
+  add: function(address) {
+    this.memoryAddressRegister = address;
+    this._get()
     this.accumulator += this.memoryBufferRegister;
   },
 
-  sub: function() {
-    this.accumulator -= this.memoryBufferRegister;
+  sub: function(address) {
+    this.memoryAddressRegister = address;
+    this._get()
+    this.accumulator = this.memoryBufferRegister - this.accumulator;
   },
 
   addc: function() {
